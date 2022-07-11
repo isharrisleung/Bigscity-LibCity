@@ -63,6 +63,7 @@ class TrafficStateExecutor(AbstractExecutor):
         self.use_early_stop = self.config.get('use_early_stop', False)
         self.patience = self.config.get('patience', 50)
         self.log_every = self.config.get('log_every', 1)
+        self.one_batch_log_every = self.config.get('one_batch_log_every', 50)
         self.saved = self.config.get('saved_model', True)
         self.load_best_epoch = self.config.get('load_best_epoch', True)
         self.hyper_tune = self.config.get('hyper_tune', False)
@@ -363,13 +364,20 @@ class TrafficStateExecutor(AbstractExecutor):
         self.model.train()
         loss_func = loss_func if loss_func is not None else self.model.calculate_loss
         losses = []
-        for batch in train_dataloader:
+        batch_len = len(train_dataloader)
+        for idx, batch in enumerate(train_dataloader):
             self.optimizer.zero_grad()
             batch.to_tensor(self.device)
             loss = loss_func(batch)
             self._logger.debug(loss.item())
             losses.append(loss.item())
             loss.backward()
+
+            if (idx % self.one_batch_log_every) == 0:
+                message = 'Epoch [{}/{}], Iter [{}/{}] train_loss: {:.4f}'.\
+                    format(epoch_idx, self.epochs, idx, batch_len, losses[-1])
+                self._logger.info(message)
+
             if self.clip_grad_norm:
                 torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.max_grad_norm)
             self.optimizer.step()
