@@ -115,7 +115,8 @@ def get_logger(config, name=None):
     Returns:
         Logger: logger
     """
-    log_dir = './libcity/log'
+    
+    log_dir = './output/{}/log'.format(config['exp_id']) # 重定位log的位置
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
     log_filename = '{}-{}-{}-{}.log'.format(config['exp_id'],

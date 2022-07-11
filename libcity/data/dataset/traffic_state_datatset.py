@@ -42,7 +42,7 @@ class TrafficStateDataset(AbstractDataset):
             + str(self.add_day_in_week) + '_' + str(self.pad_with_last_sample)
         self.cache_file_name = os.path.join('./libcity/cache/dataset_cache/',
                                             'traffic_state_{}.npz'.format(self.parameters_str))
-        self.cache_file_folder = './libcity/cache/dataset_cache/'
+        self.cache_file_folder = './cache/dataset_cache/'
         ensure_dir(self.cache_file_folder)
         self.data_path = './raw_data/' + self.dataset + '/'
         if not os.path.exists(self.data_path):
